@@ -1,10 +1,8 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { Field, TextArea, IconBtn, AddRow } from "./shared/atoms";
 
 export function CoursesForm() {
   const { data, setData } = useStore();
@@ -26,48 +24,43 @@ export function CoursesForm() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-1">
-        <Label className="text-xs">综合成绩</Label>
-        <Textarea
+    <div className="flex flex-col gap-5">
+      <Field label="综合成绩">
+        <TextArea
           value={courses.overall}
           onChange={(e) => setOverall(e.target.value)}
           placeholder="例如：GPA 3.8 / 4.0，专业排名前 15%。"
-          className="text-xs min-h-[55px] resize-y"
+          className="min-h-[55px] text-[12.5px]"
         />
-      </div>
-      <div className="space-y-2">
-        <Label className="text-xs">课程成绩</Label>
-        {courses.items.map((c, i) => (
-          <div key={i} className="flex gap-2 items-start">
-            <Textarea
-              value={c}
-              onChange={(e) => changeItem(i, e.target.value)}
-              placeholder="例如：数据结构 95，操作系统 92。"
-              className="flex-1 text-xs min-h-[45px] resize-y"
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-red-500 hover:text-red-700 mt-0.5 flex-shrink-0"
-              onClick={() => removeItem(i)}
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        ))}
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="w-full gap-1 text-xs"
-          onClick={addItem}
-        >
-          <Plus className="h-3.5 w-3.5" />
-          添加课程成绩条目
-        </Button>
-      </div>
+      </Field>
+      <Field label="课程成绩">
+        <div className="flex flex-col gap-2">
+          {courses.items.length === 0 && (
+            <p className="text-[11px] text-paper-muted text-center py-1">
+              暂无课程，点击下方按钮添加
+            </p>
+          )}
+          {courses.items.map((c, i) => (
+            <div key={i} className="flex gap-1.5 items-start">
+              <TextArea
+                value={c}
+                onChange={(e) => changeItem(i, e.target.value)}
+                placeholder="例如：数据结构 95，操作系统 92。"
+                className="flex-1 min-h-[45px] text-[12.5px]"
+              />
+              <IconBtn
+                danger
+                onClick={() => removeItem(i)}
+                aria-label="删除课程"
+                className="mt-0.5"
+              >
+                <Trash2 className="size-3.5" />
+              </IconBtn>
+            </div>
+          ))}
+          <AddRow onClick={addItem}>添加课程成绩条目</AddRow>
+        </div>
+      </Field>
     </div>
   );
 }

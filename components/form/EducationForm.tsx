@@ -1,10 +1,9 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ArrayFieldList } from "./shared/ArrayFieldList";
 import { BulletList } from "./shared/BulletList";
+import { Field, FieldRow, TextInput } from "./shared/atoms";
 import type { ResumeData } from "@/lib/schema";
 
 type Edu = ResumeData["education"][number];
@@ -19,7 +18,6 @@ const empty = (): Edu => ({
 
 export function EducationForm() {
   const { data, setData } = useStore();
-
   const update = (education: Edu[]) => setData({ ...data, education });
 
   return (
@@ -28,12 +26,13 @@ export function EducationForm() {
       onChange={update}
       createEmpty={empty}
       label="教育经历"
+      itemTitle={(it, i) => it.school || `教育 #${i + 1}`}
+      itemMeta={(it) => it.period}
       renderItem={(item, i) => (
-        <div className="space-y-2">
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">时间段</Label>
-              <Input
+        <>
+          <FieldRow>
+            <Field label="时间段">
+              <TextInput
                 value={item.period}
                 onChange={(e) => {
                   const next = [...data.education];
@@ -41,12 +40,10 @@ export function EducationForm() {
                   update(next);
                 }}
                 placeholder="2021.09 - 2025.06"
-                className="h-7 text-xs"
               />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">学位</Label>
-              <Input
+            </Field>
+            <Field label="学位">
+              <TextInput
                 value={item.degree}
                 onChange={(e) => {
                   const next = [...data.education];
@@ -54,14 +51,12 @@ export function EducationForm() {
                   update(next);
                 }}
                 placeholder="本科"
-                className="h-7 text-xs"
               />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1">
-              <Label className="text-xs">学校</Label>
-              <Input
+            </Field>
+          </FieldRow>
+          <FieldRow>
+            <Field label="学校">
+              <TextInput
                 value={item.school}
                 onChange={(e) => {
                   const next = [...data.education];
@@ -69,12 +64,10 @@ export function EducationForm() {
                   update(next);
                 }}
                 placeholder="西安电子科技大学"
-                className="h-7 text-xs"
               />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-xs">专业</Label>
-              <Input
+            </Field>
+            <Field label="专业">
+              <TextInput
                 value={item.major}
                 onChange={(e) => {
                   const next = [...data.education];
@@ -82,12 +75,10 @@ export function EducationForm() {
                   update(next);
                 }}
                 placeholder="计算机科学与技术"
-                className="h-7 text-xs"
               />
-            </div>
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">详情条目</Label>
+            </Field>
+          </FieldRow>
+          <Field label="详情条目">
             <BulletList
               bullets={item.bullets}
               onChange={(bullets) => {
@@ -96,8 +87,8 @@ export function EducationForm() {
                 update(next);
               }}
             />
-          </div>
-        </div>
+          </Field>
+        </>
       )}
     />
   );

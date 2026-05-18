@@ -1,10 +1,8 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import type { Bullet } from "@/lib/schema";
+import { TextInput, TextArea, IconBtn, AddRow } from "./atoms";
 
 interface BulletListProps {
   bullets: Bullet[];
@@ -20,42 +18,37 @@ export function BulletList({ bullets, onChange }: BulletListProps) {
   const remove = (i: number) => onChange(bullets.filter((_, idx) => idx !== i));
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2 p-2.5 bg-paper-surface-2 rounded-md border border-dashed border-paper-border">
+      {bullets.length === 0 && (
+        <p className="text-[11px] text-paper-muted text-center py-1">
+          暂无条目，可点击下方按钮添加
+        </p>
+      )}
       {bullets.map((b, i) => (
-        <div key={i} className="flex gap-2 items-start">
-          <Input
+        <div key={i} className="flex gap-1.5 items-start">
+          <TextInput
             placeholder="标签"
             value={b.label}
             onChange={(e) => update(i, { label: e.target.value })}
-            className="w-28 flex-shrink-0 h-8 text-xs"
+            className="w-24 h-[30px] flex-shrink-0 text-[12px]"
           />
-          <Textarea
+          <TextArea
             placeholder="内容"
             value={b.content}
             onChange={(e) => update(i, { content: e.target.value })}
-            className="flex-1 text-xs min-h-[60px] resize-y"
+            className="flex-1 min-h-[52px] text-[12.5px]"
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 flex-shrink-0 text-red-500 hover:text-red-700 mt-0.5"
+          <IconBtn
+            danger
             onClick={() => remove(i)}
+            aria-label="删除条目"
+            className="mt-0.5"
           >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+            <Trash2 className="size-3.5" />
+          </IconBtn>
         </div>
       ))}
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        className="gap-1 text-xs h-7"
-        onClick={add}
-      >
-        <Plus className="h-3 w-3" />
-        添加条目
-      </Button>
+      <AddRow onClick={add}>添加条目</AddRow>
     </div>
   );
 }

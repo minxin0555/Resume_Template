@@ -19,11 +19,22 @@ type PartialStyle = Partial<StyleConfig> & {
   sections?: Partial<StyleConfig["sections"]>;
 };
 
+export type EditorSectionKey = "basic" | OptionalSectionKey | "style";
+
+type CompileStatus = {
+  compiling: boolean;
+  elapsedMs: number;
+  lastUpdated?: string;
+  error?: string;
+};
+
 type Store = {
   data: ResumeData;
   style: StyleConfig;
   livePreview: boolean;
   pendingChange: number;
+  activeSection: EditorSectionKey;
+  compile: CompileStatus;
   setData: (data: ResumeData) => void;
   patchBasic: (patch: Partial<ResumeData["basic"]>) => void;
   setStyle: (patch: Partial<StyleConfig>) => void;
@@ -31,6 +42,8 @@ type Store = {
   bumpManual: () => void;
   loadDemo: () => void;
   resetStyle: () => void;
+  setActiveSection: (key: EditorSectionKey) => void;
+  setCompile: (patch: Partial<CompileStatus>) => void;
 };
 
 type LegacyBasic = {
@@ -89,6 +102,19 @@ function migrateBasic(basic: LegacyBasic): ResumeData["basic"] {
   };
 }
 
+const EDITOR_SECTIONS = new Set<EditorSectionKey>([
+  "basic",
+  "style",
+  ...OPTIONAL_SECTION_KEYS,
+]);
+
+function sanitizeActive(raw: unknown): EditorSectionKey {
+  if (typeof raw === "string" && EDITOR_SECTIONS.has(raw as EditorSectionKey)) {
+    return raw as EditorSectionKey;
+  }
+  return "basic";
+}
+
 export const useStore = create<Store>()(
   persist(
     (set) => ({
@@ -96,6 +122,8 @@ export const useStore = create<Store>()(
       style: defaultStyle,
       livePreview: true,
       pendingChange: 0,
+      activeSection: "basic",
+      compile: { compiling: false, elapsedMs: 0 },
       setData: (data) =>
         set((s) => ({ data, pendingChange: s.pendingChange + 1 })),
       patchBasic: (patch) =>
@@ -117,14 +145,24 @@ export const useStore = create<Store>()(
           style: defaultStyle,
           pendingChange: s.pendingChange + 1,
         })),
+      setActiveSection: (activeSection) => set({ activeSection }),
+      setCompile: (patch) =>
+        set((s) => ({ compile: { ...s.compile, ...patch } })),
     }),
     {
       name: "resume-draft-v2",
-      version: 5,
+      version: 7,
+      partialize: (state) => ({
+        data: state.data,
+        style: state.style,
+        livePreview: state.livePreview,
+        activeSection: state.activeSection,
+      }),
       migrate: (persisted) => {
         const state = (persisted ?? {}) as Partial<Store> & {
           data?: Partial<ResumeData> & { basic?: LegacyBasic };
           style?: PartialStyle & { sectionOrder?: unknown };
+          activeSection?: unknown;
         };
         if (state.data?.basic) {
           state.data = {
@@ -157,6 +195,7 @@ export const useStore = create<Store>()(
           },
           sectionOrder: sanitizedOrder,
         };
+        state.activeSection = sanitizeActive(state.activeSection);
         return state as Store;
       },
     },

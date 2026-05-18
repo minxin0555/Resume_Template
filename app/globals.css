@@ -5,11 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* shadcn 标准映射（保留兼容） */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,6 +37,31 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* paper-warm 设计 token —— 提供给 Tailwind utility */
+  --color-paper-bg: var(--paper-bg);
+  --color-paper-surface: var(--paper-surface);
+  --color-paper-surface-2: var(--paper-surface-2);
+  --color-paper-surface-3: var(--paper-surface-3);
+  --color-paper-border: var(--paper-border);
+  --color-paper-border-strong: var(--paper-border-strong);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-paper-muted: var(--paper-muted);
+  --color-paper-muted-2: var(--paper-muted-2);
+  --color-paper-accent: var(--paper-accent);
+  --color-paper-accent-ink: var(--paper-accent-ink);
+  --color-paper-accent-soft: var(--paper-accent-soft);
+  --color-paper-accent-soft-2: var(--paper-accent-soft-2);
+  --color-paper-danger: var(--paper-danger);
+  --color-live-green: var(--live-green);
+
+  /* 字体（由 next/font 注入 CSS 变量） */
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-mono-jb);
+  --font-serif: var(--font-serif-cjk);
+  --font-heading: var(--font-ui);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -49,41 +72,81 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* paper-warm 中性色 + ink-blue 强调色 */
+  --paper-bg: oklch(0.986 0.004 80);
+  --paper-surface: oklch(1 0 0);
+  --paper-surface-2: oklch(0.975 0.005 80);
+  --paper-surface-3: oklch(0.96 0.006 80);
+  --paper-border: oklch(0.91 0.006 80);
+  --paper-border-strong: oklch(0.84 0.008 80);
+  --ink: oklch(0.2 0.012 60);
+  --ink-soft: oklch(0.38 0.012 60);
+  --paper-muted: oklch(0.56 0.01 60);
+  --paper-muted-2: oklch(0.7 0.008 60);
+
+  --paper-accent: oklch(0.55 0.13 250);
+  --paper-accent-ink: oklch(0.42 0.13 250);
+  --paper-accent-soft: oklch(0.95 0.025 250);
+  --paper-accent-soft-2: oklch(0.92 0.04 250);
+  --paper-danger: oklch(0.58 0.16 25);
+  --live-green: oklch(0.65 0.16 145);
+
+  /* 字体（由 next/font 注入；提供兜底栈） */
+  --font-ui: "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei",
+    system-ui, -apple-system, sans-serif;
+  --font-mono-jb: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-serif-cjk: "Noto Serif SC", "Songti SC", "SimSun", serif;
+
+  /* 密度（数值会被 [data-density="compact"] 覆盖） */
+  --pad: 16px;
+  --pad-sm: 10px;
+  --pad-xs: 6px;
+  --row: 36px;
+
+  /* shadcn 标准变量 —— 全部指向 paper-warm 调色板 */
+  --background: var(--paper-bg);
+  --foreground: var(--ink);
+  --card: var(--paper-surface);
+  --card-foreground: var(--ink);
+  --popover: var(--paper-surface);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper-surface);
+  --secondary: var(--paper-surface-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-surface-2);
+  --muted-foreground: var(--paper-muted);
+  --accent: var(--paper-surface-2);
+  --accent-foreground: var(--ink);
+  --destructive: var(--paper-danger);
+  --border: var(--paper-border);
+  --input: var(--paper-border);
+  --ring: var(--paper-accent);
+  --chart-1: var(--paper-accent);
+  --chart-2: var(--paper-accent-ink);
+  --chart-3: var(--ink-soft);
+  --chart-4: var(--paper-muted);
+  --chart-5: var(--paper-muted-2);
+  --radius: 0.5rem;
+
+  --sidebar: var(--paper-surface);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper-surface);
+  --sidebar-accent: var(--paper-surface-2);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--paper-border);
+  --sidebar-ring: var(--paper-accent);
+}
+
+[data-density="compact"] {
+  --pad: 12px;
+  --pad-sm: 8px;
+  --row: 30px;
 }
 
 .dark {
+  /* 暗色模式暂不在设计范围内，保留 shadcn 默认，避免开发者切到 dark 类时整体崩坏。 */
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
@@ -102,19 +165,6 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @layer base {
@@ -123,8 +173,77 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   html {
     @apply font-sans;
+  }
+  ::selection {
+    background: var(--paper-accent-soft-2);
+    color: var(--ink);
+  }
+}
+
+@layer components {
+  /* 顶栏脉动指示器 */
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--paper-muted-2);
+    flex-shrink: 0;
+  }
+  .status-dot.live {
+    background: var(--live-green);
+    box-shadow: 0 0 0 3px oklch(0.65 0.16 145 / 0.18);
+  }
+  .status-dot.compiling {
+    background: var(--paper-accent);
+    animation: status-pulse 1.2s infinite;
+  }
+  @keyframes status-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+  }
+
+  /* navrail active 状态左侧蓝条 */
+  .navrail-active-bar {
+    position: absolute;
+    left: -6px;
+    top: 9px;
+    bottom: 9px;
+    width: 2px;
+    background: var(--paper-accent);
+    border-radius: 2px;
+  }
+
+  /* PDF 预览滚动区域的网格背景 */
+  .preview-grid-bg {
+    background:
+      linear-gradient(var(--paper-surface-3), var(--paper-surface-3)),
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 24px,
+        oklch(0.92 0.005 80) 24px 25px
+      );
+  }
+
+  /* 键盘提示标签 */
+  .kbd {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--paper-muted);
+    padding: 1px 5px;
+    border: 1px solid var(--paper-border);
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    background: var(--paper-surface-2);
   }
 }

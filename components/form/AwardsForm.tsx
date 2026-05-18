@@ -1,9 +1,8 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { TextArea, IconBtn, AddRow } from "./shared/atoms";
 
 export function AwardsForm() {
   const { data, setData } = useStore();
@@ -18,36 +17,31 @@ export function AwardsForm() {
   };
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
+      {data.awards.length === 0 && (
+        <p className="text-[11px] text-paper-muted text-center py-2">
+          暂无获奖记录，点击下方按钮添加
+        </p>
+      )}
       {data.awards.map((a, i) => (
-        <div key={i} className="flex gap-2 items-start">
-          <Textarea
+        <div key={i} className="flex gap-1.5 items-start">
+          <TextArea
             value={a}
             onChange={(e) => change(i, e.target.value)}
-            placeholder="2023 年，在 [XX 大赛] 中获得 [X等奖]"
-            className="flex-1 text-xs min-h-[50px] resize-y"
+            placeholder="2023 年，在 [XX 大赛] 中获得 [X 等奖]"
+            className="flex-1 min-h-[50px] text-[12.5px]"
           />
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7 text-red-500 hover:text-red-700 mt-0.5 flex-shrink-0"
+          <IconBtn
+            danger
             onClick={() => remove(i)}
+            aria-label="删除获奖记录"
+            className="mt-0.5"
           >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+            <Trash2 className="size-3.5" />
+          </IconBtn>
         </div>
       ))}
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="w-full gap-1 text-xs"
-        onClick={add}
-      >
-        <Plus className="h-3.5 w-3.5" />
-        添加获奖记录
-      </Button>
+      <AddRow onClick={add}>添加获奖记录</AddRow>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { FormAccordion } from "@/components/form/FormAccordion";
+import { NavRail } from "@/components/navrail/NavRail";
+import { EditorColumn } from "@/components/navrail/EditorColumn";
 import { ClientTopbarWrapper } from "@/components/topbar/ClientTopbarWrapper";
 
 const PdfPreview = dynamic(
@@ -9,22 +10,21 @@ const PdfPreview = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-full flex items-center justify-center bg-gray-200 text-gray-500 text-sm">
+      <div className="h-full flex items-center justify-center bg-paper-surface-3 text-paper-muted text-sm">
         正在加载预览引擎…
       </div>
     ),
-  }
+  },
 );
 
 export function EditorLayout() {
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-gray-50">
+    <div className="grid grid-rows-[52px_1fr] h-screen bg-paper-bg overflow-hidden">
       <ClientTopbarWrapper />
-      <div className="flex flex-1 overflow-hidden">
-        <aside className="w-[440px] flex-shrink-0 border-r bg-white overflow-y-auto">
-          <FormAccordion />
-        </aside>
-        <main className="flex-1 overflow-hidden">
+      <div className="grid grid-cols-[64px_420px_1fr] min-h-0">
+        <NavRail />
+        <EditorColumn />
+        <main className="overflow-hidden min-w-0">
           <PdfPreview />
         </main>
       </div>

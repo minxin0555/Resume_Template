@@ -1,40 +1,96 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { HexColorPicker } from "react-colorful";
 import { useState } from "react";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Check } from "lucide-react";
 import {
   DEFAULT_SECTION_ORDER,
   OPTIONAL_SECTION_LABELS,
   type OptionalSectionKey,
 } from "@/lib/schema";
+import {
+  Field,
+  Segmented,
+  ToggleSwitch,
+} from "@/components/form/shared/atoms";
+import { cn } from "@/lib/utils";
 
-const PRESET_COLORS = ["#1f4e8c", "#444444", "#b91c1c", "#166534", "#6b21a8"];
+const PRESET_COLORS = [
+  { value: "#1f4e8c", label: "ink-blue" },
+  { value: "#444444", label: "graphite" },
+  { value: "#b91c1c", label: "crimson" },
+  { value: "#166534", label: "forest" },
+  { value: "#6b21a8", label: "amethyst" },
+];
 
 const CJK_FONTS = [
-  { value: "Noto Serif SC", label: "宋体（Noto Serif SC）" },
+  { value: "Noto Serif SC" as const, label: "宋体 · Noto Serif SC" },
 ];
 
 const LATIN_FONTS = [
-  { value: "Libertinus Serif", label: "Times New Roman（Libertinus Serif）" },
+  { value: "Libertinus Serif" as const, label: "Times · Libertinus Serif" },
 ];
 
 const MARGINS = [
-  { value: "compact", label: "紧凑" },
-  { value: "standard", label: "标准" },
-  { value: "loose", label: "宽松" },
+  { value: "compact" as const, label: "紧凑" },
+  { value: "standard" as const, label: "标准" },
+  { value: "loose" as const, label: "宽松" },
 ];
+
+function Card({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border border-paper-border rounded-lg bg-paper-surface overflow-hidden">
+      <div className="flex items-center justify-between gap-2 px-3 py-2.5 bg-paper-surface-2 border-b border-paper-border text-[12px] font-medium text-ink-soft">
+        {title}
+      </div>
+      <div className="p-3 flex flex-col gap-3.5">{children}</div>
+    </div>
+  );
+}
+
+function SliderRow({
+  label,
+  value,
+  min,
+  max,
+  step,
+  display,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  display: string;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <Field
+      label={label}
+      hint={<span className="tabular-nums">{display}</span>}
+    >
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="w-full h-1 bg-paper-surface-3 rounded-full outline-none appearance-none accent-paper-accent
+          [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:size-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-paper-surface [&::-webkit-slider-thumb]:border-[1.5px] [&::-webkit-slider-thumb]:border-paper-accent [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:cursor-pointer
+          [&::-moz-range-thumb]:size-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-paper-surface [&::-moz-range-thumb]:border-[1.5px] [&::-moz-range-thumb]:border-paper-accent [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:cursor-pointer"
+      />
+    </Field>
+  );
+}
 
 export function StylePanel() {
   const { style, setStyle } = useStore();
@@ -59,212 +115,168 @@ export function StylePanel() {
   };
 
   return (
-    <div className="p-4 space-y-5 text-sm">
-      {/* Font CJK */}
-      <div className="space-y-1.5">
-        <Label>中文字体</Label>
-        <Select
-          value={style.fontCJK}
-          onValueChange={(v) => setStyle({ fontCJK: v as typeof style.fontCJK })}
-        >
-          <SelectTrigger className="h-8">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {CJK_FONTS.map((f) => (
-              <SelectItem key={f.value} value={f.value}>
-                {f.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Font Latin */}
-      <div className="space-y-1.5">
-        <Label>西文字体</Label>
-        <Select
-          value={style.fontLatin}
-          onValueChange={(v) =>
-            setStyle({ fontLatin: v as typeof style.fontLatin })
-          }
-        >
-          <SelectTrigger className="h-8">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {LATIN_FONTS.map((f) => (
-              <SelectItem key={f.value} value={f.value}>
-                {f.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Font size */}
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <Label>基础字号</Label>
-          <span className="text-muted-foreground">{style.baseFontSize} pt</span>
-        </div>
-        <Slider
+    <div className="flex flex-col gap-3.5">
+      {/* 字体 */}
+      <Card title="字体">
+        <Field label="中文字体">
+          <Segmented
+            value={style.fontCJK}
+            onChange={(v) =>
+              setStyle({ fontCJK: v as typeof style.fontCJK })
+            }
+            options={CJK_FONTS}
+            fill
+          />
+        </Field>
+        <Field label="西文字体">
+          <Segmented
+            value={style.fontLatin}
+            onChange={(v) =>
+              setStyle({ fontLatin: v as typeof style.fontLatin })
+            }
+            options={LATIN_FONTS}
+            fill
+          />
+        </Field>
+        <SliderRow
+          label="基础字号"
+          value={style.baseFontSize}
           min={8}
           max={12}
           step={0.5}
-          value={style.baseFontSize}
-          onValueChange={(v) => setStyle({ baseFontSize: v as number })}
+          display={`${style.baseFontSize} pt`}
+          onChange={(v) => setStyle({ baseFontSize: v })}
         />
-      </div>
+      </Card>
 
-      {/* Theme color */}
-      <div className="space-y-2">
-        <Label>主题色</Label>
-        <div className="flex gap-2 items-center flex-wrap">
-          {PRESET_COLORS.map((c) => (
-            <button
-              key={c}
-              title={c}
-              onClick={() => setStyle({ themeColor: c })}
-              className="w-6 h-6 rounded-full border-2 transition-all"
-              style={{
-                backgroundColor: c,
-                borderColor: style.themeColor === c ? "#000" : "transparent",
-              }}
-            />
-          ))}
+      {/* 主题色 */}
+      <Card title="主题色">
+        <div className="flex items-center gap-2 flex-wrap">
+          {PRESET_COLORS.map((c) => {
+            const on = style.themeColor === c.value;
+            return (
+              <button
+                key={c.value}
+                type="button"
+                title={c.label}
+                onClick={() => setStyle({ themeColor: c.value })}
+                className="relative size-[22px] rounded-md border border-paper-border cursor-pointer transition-transform hover:scale-110"
+                style={{ background: c.value }}
+              >
+                {on && (
+                  <span className="absolute -inset-[3px] rounded-[8px] border-[1.5px] border-ink pointer-events-none" />
+                )}
+              </button>
+            );
+          })}
           <button
-            className="w-6 h-6 rounded-full border border-gray-300 text-xs flex items-center justify-center"
-            style={{ backgroundColor: style.themeColor }}
+            type="button"
             onClick={() => setShowPicker((p) => !p)}
             title="自定义颜色"
-          />
+            className={cn(
+              "size-[22px] rounded-md border border-paper-border cursor-pointer transition-transform hover:scale-110 grid place-items-center",
+            )}
+            style={{
+              background: PRESET_COLORS.some(
+                (c) => c.value === style.themeColor,
+              )
+                ? `linear-gradient(45deg, transparent 45%, var(--ink-soft) 45%, var(--ink-soft) 55%, transparent 55%)`
+                : style.themeColor,
+            }}
+          >
+            {!PRESET_COLORS.some((c) => c.value === style.themeColor) && (
+              <Check className="size-3 text-white drop-shadow" />
+            )}
+          </button>
+          <span className="inline-flex items-center h-[22px] px-2 border border-paper-border rounded-full font-mono text-[11px] text-paper-muted bg-paper-surface">
+            {style.themeColor}
+          </span>
         </div>
         {showPicker && (
-          <div className="relative z-20">
+          <div className="flex flex-col gap-2">
             <HexColorPicker
               color={style.themeColor}
               onChange={(c) => setStyle({ themeColor: c })}
+              style={{ width: "100%" }}
             />
             <button
-              className="mt-1 text-xs text-muted-foreground hover:text-foreground"
+              type="button"
               onClick={() => setShowPicker(false)}
+              className="text-[11.5px] text-paper-muted hover:text-ink self-end"
             >
               关闭
             </button>
           </div>
         )}
-      </div>
+      </Card>
 
-      {/* Line height */}
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <Label>行距</Label>
-          <span className="text-muted-foreground">{style.lineHeight.toFixed(1)}</span>
-        </div>
-        <Slider
+      {/* 排版 */}
+      <Card title="排版">
+        <SliderRow
+          label="行距"
+          value={style.lineHeight}
           min={1.1}
           max={1.8}
           step={0.1}
-          value={style.lineHeight}
-          onValueChange={(v) => setStyle({ lineHeight: v as number })}
+          display={style.lineHeight.toFixed(1)}
+          onChange={(v) => setStyle({ lineHeight: v })}
         />
-      </div>
-
-      {/* Paragraph spacing */}
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <Label>段距</Label>
-          <span className="text-muted-foreground">
-            {style.paragraphSpacing.toFixed(1)} em
-          </span>
-        </div>
-        <Slider
+        <SliderRow
+          label="段距"
+          value={style.paragraphSpacing}
           min={0.2}
           max={1.2}
           step={0.1}
-          value={style.paragraphSpacing}
-          onValueChange={(v) => setStyle({ paragraphSpacing: v as number })}
+          display={`${style.paragraphSpacing.toFixed(1)} em`}
+          onChange={(v) => setStyle({ paragraphSpacing: v })}
         />
-      </div>
-
-      {/* Bullet spacing */}
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <Label>列表条目间距</Label>
-          <span className="text-muted-foreground">
-            {style.bulletSpacing.toFixed(1)} em
-          </span>
-        </div>
-        <Slider
+        <SliderRow
+          label="列表条目间距"
+          value={style.bulletSpacing}
           min={0.1}
           max={1.0}
           step={0.1}
-          value={style.bulletSpacing}
-          onValueChange={(v) => setStyle({ bulletSpacing: v as number })}
+          display={`${style.bulletSpacing.toFixed(1)} em`}
+          onChange={(v) => setStyle({ bulletSpacing: v })}
         />
-      </div>
-
-      {/* Section spacing */}
-      <div className="space-y-2">
-        <div className="flex justify-between">
-          <Label>板块间距</Label>
-          <span className="text-muted-foreground">
-            {style.sectionSpacing.toFixed(1)} em
-          </span>
-        </div>
-        <Slider
+        <SliderRow
+          label="板块间距"
+          value={style.sectionSpacing}
           min={0.3}
           max={2.0}
           step={0.1}
-          value={style.sectionSpacing}
-          onValueChange={(v) => setStyle({ sectionSpacing: v as number })}
+          display={`${style.sectionSpacing.toFixed(1)} em`}
+          onChange={(v) => setStyle({ sectionSpacing: v })}
         />
-      </div>
-
-      {/* Margin */}
-      <div className="space-y-1.5">
-        <Label>页面边距</Label>
-        <div className="flex gap-2">
-          {MARGINS.map((m) => (
-            <button
-              key={m.value}
-              onClick={() =>
-                setStyle({ margin: m.value as typeof style.margin })
-              }
-              className={`flex-1 py-1 rounded border text-xs transition-colors ${
-                style.margin === m.value
-                  ? "bg-blue-900 text-white border-blue-900"
-                  : "border-gray-300 hover:border-gray-400"
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
+        <Field label="页面边距">
+          <Segmented
+            value={style.margin}
+            onChange={(v) => setStyle({ margin: v })}
+            options={MARGINS}
+            fill
+          />
+        </Field>
+        <div className="flex items-center justify-between gap-2 pt-1">
+          <span className="text-[12px] text-ink">显示照片</span>
+          <ToggleSwitch
+            checked={style.showPhoto}
+            onChange={(v) => setStyle({ showPhoto: v })}
+            ariaLabel="显示照片"
+          />
         </div>
-      </div>
+      </Card>
 
-      {/* Show photo */}
-      <div className="flex items-center gap-2">
-        <Switch
-          id="show-photo"
-          checked={style.showPhoto}
-          onCheckedChange={(v) => setStyle({ showPhoto: v })}
-        />
-        <Label htmlFor="show-photo">显示照片</Label>
-      </div>
-
-      {/* Section order */}
-      <div className="space-y-1.5 border-t pt-4">
-        <Label>板块顺序</Label>
-        <p className="text-[11px] text-muted-foreground">
-          拖动右侧手柄调整板块在简历中的排列顺序。
+      {/* 板块顺序 */}
+      <Card title="板块顺序">
+        <p className="text-[11px] text-paper-muted -mt-1">
+          拖动手柄调整板块在简历中的排列顺序。
         </p>
-        <ul className="space-y-1">
+        <ul className="flex flex-col gap-1">
           {sectionOrder.map((key, i) => {
             const hidden = !style.sections[key];
             const isDragging = dragKey === key;
-            const isOver = overKey === key && dragKey !== null && dragKey !== key;
+            const isOver =
+              overKey === key && dragKey !== null && dragKey !== key;
             return (
               <li
                 key={key}
@@ -283,25 +295,26 @@ export function StylePanel() {
                   setDragKey(null);
                   setOverKey(null);
                 }}
-                className={`flex items-center justify-between rounded border bg-gray-50 px-2 py-1.5 transition-all ${
-                  isDragging ? "opacity-40" : ""
-                } ${
-                  isOver
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200"
-                }`}
+                className={cn(
+                  "grid items-center gap-2 px-2.5 py-2 border border-paper-border rounded-md bg-paper-surface transition-colors text-[12.5px]",
+                  "hover:border-paper-border-strong",
+                  isDragging && "opacity-40",
+                  isOver && "border-paper-accent bg-paper-accent-soft",
+                  hidden && "text-paper-muted",
+                )}
+                style={{ gridTemplateColumns: "20px 1fr auto auto" }}
               >
-                <span className="flex items-center gap-2 text-xs">
-                  <span className="w-4 text-muted-foreground">{i + 1}.</span>
-                  <span className={hidden ? "text-muted-foreground" : ""}>
-                    {OPTIONAL_SECTION_LABELS[key]}
-                  </span>
-                  {hidden && (
-                    <span className="rounded bg-gray-200 px-1 text-[10px] text-gray-600">
-                      已隐藏
-                    </span>
-                  )}
+                <span className="font-mono text-[10.5px] text-paper-muted text-right">
+                  {i + 1}
                 </span>
+                <span className="truncate">
+                  {OPTIONAL_SECTION_LABELS[key]}
+                </span>
+                {hidden && (
+                  <span className="font-mono text-[9.5px] tracking-wider text-paper-muted px-1.5 py-px bg-paper-surface-3 rounded uppercase">
+                    Hidden
+                  </span>
+                )}
                 <span
                   draggable
                   onDragStart={(e) => {
@@ -314,15 +327,15 @@ export function StylePanel() {
                     setOverKey(null);
                   }}
                   aria-label={`拖动以调整 ${OPTIONAL_SECTION_LABELS[key]} 的顺序`}
-                  className="inline-flex h-6 w-6 cursor-grab items-center justify-center rounded text-muted-foreground hover:bg-gray-200 hover:text-foreground active:cursor-grabbing"
+                  className="inline-grid place-items-center size-6 cursor-grab text-paper-muted-2 hover:text-ink active:cursor-grabbing"
                 >
-                  <GripVertical className="h-4 w-4" />
+                  <GripVertical className="size-4" />
                 </span>
               </li>
             );
           })}
         </ul>
-      </div>
+      </Card>
     </div>
   );
 }

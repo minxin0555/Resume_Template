@@ -1,15 +1,19 @@
 "use client";
 
 import { useStore } from "@/lib/store";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import {
+  Field,
+  TextArea,
+  IconBtn,
+  AddRow,
+  Segmented,
+} from "./shared/atoms";
 
 const MODES = [
-  { value: "bullets", label: "分点写" },
-  { value: "paragraph", label: "段落写" },
-] as const;
+  { value: "bullets" as const, label: "分点写" },
+  { value: "paragraph" as const, label: "段落写" },
+];
 
 export function StrengthsForm() {
   const { data, setData } = useStore();
@@ -17,10 +21,8 @@ export function StrengthsForm() {
 
   const setMode = (mode: "bullets" | "paragraph") =>
     setData({ ...data, strengths: { ...strengths, mode } });
-
   const setBullets = (bullets: string[]) =>
     setData({ ...data, strengths: { ...strengths, bullets } });
-
   const setParagraph = (paragraph: string) =>
     setData({ ...data, strengths: { ...strengths, paragraph } });
 
@@ -34,65 +36,44 @@ export function StrengthsForm() {
   };
 
   return (
-    <div className="space-y-3">
-      <div className="space-y-1.5">
-        <Label className="text-xs">书写方式</Label>
-        <div className="flex gap-2">
-          {MODES.map((m) => (
-            <button
-              key={m.value}
-              type="button"
-              onClick={() => setMode(m.value)}
-              className={`flex-1 py-1 rounded border text-xs transition-colors ${
-                strengths.mode === m.value
-                  ? "bg-blue-900 text-white border-blue-900"
-                  : "border-gray-300 hover:border-gray-400"
-              }`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="flex flex-col gap-4">
+      <Field label="书写方式">
+        <Segmented value={strengths.mode} onChange={setMode} options={MODES} fill />
+      </Field>
 
       {strengths.mode === "bullets" ? (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
+          {strengths.bullets.length === 0 && (
+            <p className="text-[11px] text-paper-muted text-center py-1">
+              暂无优势条目，点击下方按钮添加
+            </p>
+          )}
           {strengths.bullets.map((b, i) => (
-            <div key={i} className="flex gap-2 items-start">
-              <Textarea
+            <div key={i} className="flex gap-1.5 items-start">
+              <TextArea
                 value={b}
                 onChange={(e) => changeBullet(i, e.target.value)}
                 placeholder="例如：扎实的算法功底，ACM 校赛二等奖，LeetCode 600+。"
-                className="flex-1 text-xs min-h-[50px] resize-y"
+                className="flex-1 min-h-[50px] text-[12.5px]"
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-red-500 hover:text-red-700 mt-0.5 flex-shrink-0"
+              <IconBtn
+                danger
                 onClick={() => removeBullet(i)}
+                aria-label="删除优势条目"
+                className="mt-0.5"
               >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
+                <Trash2 className="size-3.5" />
+              </IconBtn>
             </div>
           ))}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-full gap-1 text-xs"
-            onClick={addBullet}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            添加优势条目
-          </Button>
+          <AddRow onClick={addBullet}>添加优势条目</AddRow>
         </div>
       ) : (
-        <Textarea
+        <TextArea
           value={strengths.paragraph}
           onChange={(e) => setParagraph(e.target.value)}
           placeholder="用一两段话概括你的核心优势、性格特质和综合能力…"
-          className="text-xs min-h-[110px] resize-y"
+          className="min-h-[110px] text-[12.5px]"
         />
       )}
     </div>

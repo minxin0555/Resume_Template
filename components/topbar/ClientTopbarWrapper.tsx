@@ -21,5 +21,16 @@ export function ClientTopbarWrapper() {
     window.dispatchEvent(new CustomEvent("resume:refresh"));
   };
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        handleDownload();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   return <Topbar onDownload={handleDownload} onRefresh={handleRefresh} />;
 }
