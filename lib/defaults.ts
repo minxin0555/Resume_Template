@@ -2,6 +2,7 @@ import type { ResumeData, StyleConfig } from "./schema";
 import { DEFAULT_SECTION_ORDER } from "./schema";
 
 export const defaultStyle: StyleConfig = {
+  template: "minimal",
   fontCJK: "Noto Serif SC",
   fontLatin: "Libertinus Serif",
   baseFontSize: 10,

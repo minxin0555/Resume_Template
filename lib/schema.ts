@@ -107,7 +107,19 @@ export const SectionOrderSchema = z
   .array(z.enum(OPTIONAL_SECTION_KEYS))
   .default(DEFAULT_SECTION_ORDER);
 
+export const TEMPLATE_KEYS = ["minimal", "banner"] as const;
+export type TemplateKey = (typeof TEMPLATE_KEYS)[number];
+
+export const TEMPLATE_META: Record<
+  TemplateKey,
+  { label: string; sub: string }
+> = {
+  minimal: { label: "极简版式", sub: "细线分隔 · 西文气质" },
+  banner: { label: "飘带版式", sub: "中式色块 · 校招友好" },
+};
+
 export const StyleSchema = z.object({
+  template: z.enum(TEMPLATE_KEYS).catch("minimal").default("minimal"),
   fontCJK: z
     .enum(["Noto Serif SC"])
     .catch("Noto Serif SC")

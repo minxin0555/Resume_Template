@@ -3,7 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useStore } from "@/lib/store";
 import { renderResume } from "@/lib/typst/render";
-import { ChevronRight, ZoomIn, ZoomOut, Loader2 } from "lucide-react";
+import {
+  ChevronRight,
+  ZoomIn,
+  ZoomOut,
+  Loader2,
+  AlertCircle,
+  Copy,
+  Check,
+} from "lucide-react";
 
 const ZOOM_MIN = 0.6;
 const ZOOM_MAX = 1.8;
@@ -15,6 +23,7 @@ export function PdfPreview() {
   const [url, setUrl] = useState<string>();
   const [error, setError] = useState<string>();
   const [zoom, setZoom] = useState(1);
+  const [copied, setCopied] = useState(false);
   const lastUrlRef = useRef<string | null>(null);
 
   const compileNow = async () => {
@@ -125,15 +134,16 @@ export function PdfPreview() {
         </div>
       </div>
 
-      {/* Display area —— iframe 铺满整个预览区，两组缩放按钮都通过 #zoom= 控制 PDF 内容 */}
-      <div className="flex-1 min-h-0 bg-paper-surface-3">
-        {url ? (
+      {/* Display area */}
+      <div className="flex-1 min-h-0 bg-paper-surface-3 relative">
+        {url && (
           <iframe
             src={`${url}#toolbar=0&navpanes=0&zoom=${Math.round(zoom * 100)}`}
             className="w-full h-full border-0 block bg-paper-surface"
             title="简历预览"
           />
-        ) : (
+        )}
+        {!url && !error && (
           <div className="flex flex-col items-center justify-center h-full gap-3 text-paper-muted">
             {compile.compiling ? (
               <>
@@ -148,6 +158,46 @@ export function PdfPreview() {
             ) : (
               <span className="text-[13px]">等待编译</span>
             )}
+          </div>
+        )}
+        {error && (
+          <div className="absolute inset-0 flex flex-col bg-paper-surface-3/95 backdrop-blur-sm overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-2.5 bg-paper-danger/10 border-b border-paper-danger/30 flex-shrink-0">
+              <AlertCircle className="size-4 text-paper-danger flex-shrink-0" />
+              <span className="text-[13px] font-medium text-paper-danger">
+                Typst 编译失败
+              </span>
+              <span className="flex-1" />
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard?.writeText(error);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1500);
+                }}
+                className="inline-flex items-center gap-1 h-7 px-2 rounded-md border border-paper-border bg-paper-surface text-[11.5px] text-ink-soft hover:border-paper-border-strong transition-colors"
+              >
+                {copied ? (
+                  <>
+                    <Check className="size-3" /> 已复制
+                  </>
+                ) : (
+                  <>
+                    <Copy className="size-3" /> 复制错误信息
+                  </>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => void compileNow()}
+                className="inline-flex items-center gap-1 h-7 px-2.5 rounded-md bg-ink text-paper-surface text-[11.5px] hover:opacity-90 transition-opacity"
+              >
+                重新编译
+              </button>
+            </div>
+            <pre className="flex-1 min-h-0 overflow-auto m-0 p-4 font-mono text-[12px] leading-[1.6] text-paper-danger whitespace-pre-wrap break-words bg-paper-surface">
+              {error}
+            </pre>
           </div>
         )}
       </div>
@@ -174,14 +224,9 @@ export function PdfPreview() {
           <span>更新于 {compile.lastUpdated}</span>
         )}
         {error && (
-          <details className="text-paper-danger flex-1 min-w-0">
-            <summary className="cursor-pointer hover:opacity-80">
-              查看详情
-            </summary>
-            <pre className="mt-1 text-[11px] whitespace-pre-wrap break-all bg-paper-accent-soft p-2 rounded max-h-32 overflow-auto text-paper-danger">
-              {error}
-            </pre>
-          </details>
+          <span className="text-paper-danger truncate">
+            {error.split("\n")[0]}
+          </span>
         )}
       </div>
     </div>

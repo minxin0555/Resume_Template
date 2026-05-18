@@ -7,7 +7,10 @@ import { GripVertical, Check } from "lucide-react";
 import {
   DEFAULT_SECTION_ORDER,
   OPTIONAL_SECTION_LABELS,
+  TEMPLATE_KEYS,
+  TEMPLATE_META,
   type OptionalSectionKey,
+  type TemplateKey,
 } from "@/lib/schema";
 import {
   Field,
@@ -116,6 +119,41 @@ export function StylePanel() {
 
   return (
     <div className="flex flex-col gap-3.5">
+      {/* 模板 */}
+      <Card title="模板">
+        <div className="grid grid-cols-2 gap-2">
+          {TEMPLATE_KEYS.map((key) => {
+            const meta = TEMPLATE_META[key];
+            const on = style.template === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setStyle({ template: key as TemplateKey })}
+                className={cn(
+                  "flex flex-col items-stretch gap-1 p-1.5 bg-paper-surface border rounded-md cursor-pointer transition-all text-left",
+                  on
+                    ? "border-paper-accent bg-paper-accent-soft ring-[3px] ring-paper-accent/15"
+                    : "border-paper-border hover:border-paper-border-strong hover:-translate-y-px",
+                )}
+              >
+                {key === "minimal" ? (
+                  <TemplateThumbMinimal />
+                ) : (
+                  <TemplateThumbBanner />
+                )}
+                <span className="text-[12px] font-medium px-1 mt-0.5 text-ink">
+                  {meta.label}
+                </span>
+                <span className="font-mono text-[10px] text-paper-muted px-1">
+                  {meta.sub}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </Card>
+
       {/* 字体 */}
       <Card title="字体">
         <Field label="中文字体">
@@ -337,5 +375,127 @@ export function StylePanel() {
         </ul>
       </Card>
     </div>
+  );
+}
+
+function TemplateThumbMinimal() {
+  return (
+    <svg
+      viewBox="0 0 120 150"
+      className="w-full h-[96px] rounded bg-white border border-paper-border"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <rect width="120" height="150" fill="oklch(1 0 0)" />
+      <text
+        x="12"
+        y="22"
+        fontSize="11"
+        fontWeight="700"
+        fill="oklch(0.42 0.13 250)"
+        fontFamily="serif"
+        letterSpacing="2"
+      >
+        姓名
+      </text>
+      <line
+        x1="12"
+        y1="30"
+        x2="108"
+        y2="30"
+        stroke="oklch(0.42 0.13 250)"
+        strokeWidth="1.2"
+      />
+      <rect x="12" y="38" width="28" height="2" fill="oklch(0.42 0.13 250)" />
+      <rect x="12" y="44" width="68" height="1.4" fill="oklch(0.7 0 0)" />
+      <rect x="12" y="49" width="80" height="1.4" fill="oklch(0.7 0 0)" />
+      <rect x="12" y="54" width="60" height="1.4" fill="oklch(0.7 0 0)" />
+      <rect x="12" y="66" width="28" height="2" fill="oklch(0.42 0.13 250)" />
+      <rect x="12" y="72" width="80" height="1.4" fill="oklch(0.7 0 0)" />
+      <rect x="12" y="77" width="64" height="1.4" fill="oklch(0.7 0 0)" />
+      <rect x="12" y="82" width="76" height="1.4" fill="oklch(0.7 0 0)" />
+      <rect x="12" y="94" width="28" height="2" fill="oklch(0.42 0.13 250)" />
+      <rect x="12" y="100" width="84" height="1.4" fill="oklch(0.7 0 0)" />
+      <rect x="12" y="105" width="68" height="1.4" fill="oklch(0.7 0 0)" />
+    </svg>
+  );
+}
+
+function TemplateThumbBanner() {
+  return (
+    <svg
+      viewBox="0 0 120 150"
+      className="w-full h-[96px] rounded bg-white border border-paper-border"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden
+    >
+      <rect width="120" height="150" fill="oklch(1 0 0)" />
+      <path
+        d="M0 0 L120 0 L120 24 L78 24 L72 30 L0 30 Z"
+        fill="oklch(0.82 0.05 240)"
+      />
+      <path
+        d="M0 4 L120 4 L120 6 L0 6 Z"
+        fill="oklch(1 0 0 / 0.35)"
+      />
+      <text
+        x="8"
+        y="20"
+        fontSize="11"
+        fontWeight="700"
+        fill="oklch(1 0 0)"
+        letterSpacing="1.5"
+      >
+        个人简历
+      </text>
+      <circle cx="92" cy="14" r="3" fill="oklch(1 0 0)" opacity="0.55" />
+      <circle cx="102" cy="14" r="3" fill="oklch(1 0 0)" opacity="0.55" />
+      <circle cx="112" cy="14" r="3" fill="oklch(1 0 0)" opacity="0.55" />
+      {[40, 70, 100].map((y, i) => (
+        <g key={i}>
+          <path
+            d={`M6 ${y} L40 ${y} L46 ${y + 6} L6 ${y + 6} Z`}
+            fill="oklch(0.86 0.04 240)"
+          />
+          <rect
+            x="6"
+            y={y + 5}
+            width="108"
+            height="0.8"
+            fill="oklch(0.86 0.04 240)"
+          />
+          <text
+            x="10"
+            y={y + 5}
+            fontSize="5"
+            fill="oklch(0.35 0.08 240)"
+            fontWeight="600"
+          >
+            板块
+          </text>
+          <rect
+            x="10"
+            y={y + 12}
+            width="54"
+            height="1.4"
+            fill="oklch(0.7 0 0)"
+          />
+          <rect
+            x="10"
+            y={y + 17}
+            width="84"
+            height="1.4"
+            fill="oklch(0.7 0 0)"
+          />
+          <rect
+            x="10"
+            y={y + 22}
+            width="70"
+            height="1.4"
+            fill="oklch(0.7 0 0)"
+          />
+        </g>
+      ))}
+    </svg>
   );
 }

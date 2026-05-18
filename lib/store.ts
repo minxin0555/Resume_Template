@@ -151,7 +151,7 @@ export const useStore = create<Store>()(
     }),
     {
       name: "resume-draft-v2",
-      version: 7,
+      version: 8,
       partialize: (state) => ({
         data: state.data,
         style: state.style,
