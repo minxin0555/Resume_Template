@@ -60,12 +60,19 @@ export const template = `// classic-blue resume template
 
   let labeled-bullet(lbl, content) = {
     block(inset: (left: 0.6em), spacing: bullet-spacing)[
-      *●* *#lbl：*#content
+      *#lbl：*#content
     ]
   }
 
   let plain-bullet(content) = {
-    block(inset: (left: 0.6em), spacing: bullet-spacing)[*●* #content]
+    block(inset: (left: 0.6em), spacing: bullet-spacing)[#content]
+  }
+
+  // Project detail bullets keep the dot.
+  let project-bullet(lbl, content) = {
+    block(inset: (left: 0.6em), spacing: bullet-spacing)[
+      *●* *#lbl：*#content
+    ]
   }
 
   // ───────────── banner-template helpers ─────────────
@@ -116,8 +123,6 @@ export const template = `// classic-blue resume template
   let banner-labeled-bullet(lbl, content) = {
     pad(x: banner-hpad + 1em)[
       #block(spacing: bullet-spacing)[
-        #box(baseline: -0.25em, circle(radius: 2.5pt, fill: theme))
-        #h(6pt)
         *#lbl：*#content
       ]
     ]
@@ -125,17 +130,24 @@ export const template = `// classic-blue resume template
 
   let banner-plain-bullet(content) = {
     pad(x: banner-hpad + 1em)[
-      #block(spacing: bullet-spacing)[
-        #box(baseline: -0.25em, circle(radius: 2.5pt, fill: theme))
-        #h(6pt)
-        #content
-      ]
+      #block(spacing: bullet-spacing)[#content]
     ]
   }
 
   let banner-sub-bullet(content) = {
     pad(x: banner-hpad + 2.4em)[
-      #block(spacing: bullet-spacing)[· #content]
+      #block(spacing: bullet-spacing)[#content]
+    ]
+  }
+
+  // Project detail bullets keep the dot.
+  let banner-project-bullet(lbl, content) = {
+    pad(x: banner-hpad + 1em)[
+      #block(spacing: bullet-spacing)[
+        #box(baseline: -0.25em, circle(radius: 2.5pt, fill: theme))
+        #h(6pt)
+        *#lbl：*#content
+      ]
     ]
   }
 
@@ -249,7 +261,7 @@ export const template = `// classic-blue resume template
         }
         v(0.15em)
         for b in p.bullets {
-          labeled-bullet(b.label, b.content)
+          project-bullet(b.label, b.content)
         }
       }
     }
@@ -266,7 +278,7 @@ export const template = `// classic-blue resume template
       if item-list.len() > 0 {
         labeled-bullet("课程成绩", "")
         for c in item-list {
-          block(inset: (left: 2em), spacing: bullet-spacing)[· #c]
+          block(inset: (left: 2em), spacing: bullet-spacing)[#c]
         }
       }
       v(0.2em)
@@ -311,22 +323,19 @@ export const template = `// classic-blue resume template
   }
 
   // ───────────── banner-template renderers ─────────────
-  let render-banner-hero() = {
-    block(
-      width: 100%,
-      fill: gradient.linear(theme, theme.lighten(35%), angle: 135deg),
-      inset: (x: banner-hpad, top: 16pt, bottom: 16pt),
-    )[
-      #set text(fill: white)
-      #text(font: style.fontCJK, size: 22pt, weight: "regular", tracking: 8pt)[个人简历]
+  let render-banner-name() = {
+    v(18pt)
+    pad(x: banner-hpad)[
+      #text(font: style.fontCJK, size: 26pt, weight: "bold", tracking: 4pt, fill: theme-ink)[#data.basic.name]
     ]
+    v(4pt)
   }
 
   let render-banner-basic() = {
     banner-section("基本信息")
 
-    // build (label, value) pairs
-    let cells = ((pad-cjk("姓名"), data.basic.name),)
+    // build (label, value) pairs (name now lives in the top banner-name block)
+    let cells = ()
     for row in contact-rows {
       for item in row {
         let lbl = item.at("label", default: "")
@@ -345,22 +354,23 @@ export const template = `// classic-blue resume template
     )
 
     pad(x: banner-hpad + 0.4em)[
-      #block(
-        fill: theme.lighten(92%),
-        inset: (x: 12pt, y: 10pt),
-        radius: 3pt,
-        width: 100%,
-      )[
+      #block(width: 100%)[
+        #block(
+          fill: theme.lighten(92%),
+          inset: if show-photo {
+            (left: 12pt, right: 3.6cm, y: 10pt)
+          } else {
+            (x: 12pt, y: 10pt)
+          },
+          radius: 3pt,
+          width: 100%,
+        )[
+          #basic-grid
+        ]
         #if show-photo {
-          grid(
-            columns: (1fr, auto),
-            column-gutter: 16pt,
-            align: (left + top, right + top),
-            basic-grid,
-            image(basic-photo, width: 2.6cm),
-          )
-        } else {
-          basic-grid
+          place(top + right, dx: 0pt, dy: -2.4cm)[
+            #image(basic-photo, width: 3.0cm)
+          ]
         }
       ]
     ]
@@ -404,14 +414,31 @@ export const template = `// classic-blue resume template
         let p-period = p.at("period", default: "")
         let p-subtitle = p.at("subtitle", default: none)
         let has-subtitle = p-subtitle != none and p-subtitle != ""
-        banner-entry-head(
-          p-period,
-          p.name,
-          if has-subtitle { p-subtitle } else { "" },
-          mid-align: left,
-        )
+        pad(x: banner-hpad)[
+          #if p-period != "" {
+            grid(
+              columns: (auto, 1fr, auto),
+              column-gutter: 18pt,
+              align: (left + horizon, left + horizon, right + horizon),
+              text(font: style.fontLatin, weight: "bold", size: 0.9em)[#p-period],
+              text(weight: "bold")[#p.name],
+              text(weight: "bold", size: 0.95em)[#if has-subtitle { p-subtitle } else { "" }],
+            )
+          } else if has-subtitle {
+            grid(
+              columns: (1fr, auto),
+              column-gutter: 18pt,
+              align: (left + horizon, right + horizon),
+              text(weight: "bold")[#p.name],
+              text(weight: "bold", size: 0.95em)[#p-subtitle],
+            )
+          } else {
+            text(weight: "bold")[#p.name]
+          }
+        ]
+        v(0.1em)
         for b in p.bullets {
-          banner-labeled-bullet(b.label, b.content)
+          banner-project-bullet(b.label, b.content)
         }
       }
     }
@@ -498,7 +525,7 @@ export const template = `// classic-blue resume template
   let order = style.at("sectionOrder", default: default-order)
 
   if is-banner {
-    render-banner-hero()
+    render-banner-name()
     render-banner-basic()
   } else {
     render-minimal-header()
